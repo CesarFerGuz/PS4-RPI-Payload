@@ -41,11 +41,17 @@ void network_listen_loop(void) {
     
     int client_sock = sceNetAccept(server_socket, (struct sockaddr*)&client_addr, &client_len);
     if (client_sock >= 0) {
-        char buffer[2048];
+        char buffer[4096];
         memset(buffer, 0, sizeof(buffer));
         
         int received = sceNetRecv(client_sock, buffer, sizeof(buffer) - 1, 0);
         if (received > 0) {
+            // Si el header dice Content-Length pero no vemos el body (no hay llaves o http), leer un poco mas
+            if (strstr(buffer, "Content-Length:") && !strstr(buffer, "{") && !strstr(buffer, "http")) {
+                sceKernelUsleep(50000); // Esperar 50ms para que llegue el body
+                int more = sceNetRecv(client_sock, buffer + received, sizeof(buffer) - 1 - received, 0);
+                if (more > 0) received += more;
+            }
             buffer[received] = '\0';
             
             // Manejar preflight CORS (OPTIONS)
