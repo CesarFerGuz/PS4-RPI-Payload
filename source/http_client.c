@@ -13,7 +13,7 @@ void http_client_term(void) {
 }
 
 // Parses "http://192.168.68.x/path" -> ip="192.168.68.x", path="/path"
-static void parse_url(const char* url, char* ip, char* path) {
+static void parse_url(const char* url, char* ip, int* port, char* path) {
     const char* p = url;
     if (p[0] == 'h' && p[1] == 't' && p[2] == 't' && p[3] == 'p' && p[4] == ':' && p[5] == '/' && p[6] == '/') {
         p += 7;
@@ -24,8 +24,14 @@ static void parse_url(const char* url, char* ip, char* path) {
     }
     ip[i] = '\0';
     
+    *port = 80;
     if (*p == ':') {
-        while (*p != '/' && *p != '\0') p++;
+        p++;
+        *port = 0;
+        while (*p >= '0' && *p <= '9') {
+            *port = *port * 10 + (*p - '0');
+            p++;
+        }
     }
     
     int j = 0;
@@ -59,8 +65,9 @@ static unsigned int parse_ip(const char* ip_str) {
 
 int http_download_range(const char* url, unsigned long offset, unsigned long size, void* buffer, unsigned long* downloaded) {
     char ip[64] = {0};
+    int port = 80;
     char path[256] = {0};
-    parse_url(url, ip, path);
+    parse_url(url, ip, &port, path);
 
     int sock = sceNetSocket("http_client_sock", AF_INET, SOCK_STREAM, 0);
     if (sock < 0) return sock;
@@ -68,7 +75,7 @@ int http_download_range(const char* url, unsigned long offset, unsigned long siz
     struct sockaddr_in server_addr;
     server_addr.sin_len = sizeof(server_addr);
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = sceNetHtons(80);
+    server_addr.sin_port = sceNetHtons(port);
     server_addr.sin_addr.s_addr = parse_ip(ip);
 
     if (sceNetConnect(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
@@ -127,8 +134,9 @@ int http_download_range(const char* url, unsigned long offset, unsigned long siz
 
 int http_download_range_to_file(const char* url, unsigned long offset, unsigned long size, int fd, unsigned long* downloaded) {
     char ip[64] = {0};
+    int port = 80;
     char path[256] = {0};
-    parse_url(url, ip, path);
+    parse_url(url, ip, &port, path);
 
     int sock = sceNetSocket("http_client_sock", AF_INET, SOCK_STREAM, 0);
     if (sock < 0) return sock;
@@ -136,7 +144,7 @@ int http_download_range_to_file(const char* url, unsigned long offset, unsigned 
     struct sockaddr_in server_addr;
     server_addr.sin_len = sizeof(server_addr);
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = sceNetHtons(80);
+    server_addr.sin_port = sceNetHtons(port);
     server_addr.sin_addr.s_addr = parse_ip(ip);
 
     if (sceNetConnect(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
