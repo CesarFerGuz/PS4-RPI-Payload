@@ -1,0 +1,33 @@
+name: Compilador PS4 Payload SDK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Clonar el repositorio
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Instalar herramientas
+        run: sudo apt-get update && sudo apt-get install -y gcc binutils git
+
+      - name: 🎮 Descargar y compilar PS4-Payload-SDK
+        run: |
+          git clone https://github.com/Scene-Collective/ps4-payload-sdk.git /opt/ps4-payload-sdk
+          cd /opt/ps4-payload-sdk/libPS4
+          make
+
+      - name: 🏗️ Compilar tu Payload
+        run: |
+          export PS4SDK=/opt/ps4-payload-sdk
+          make
+
+      - name: 📦 Subir artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpi-payload
+          path: rpi_payload.bin
