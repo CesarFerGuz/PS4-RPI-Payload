@@ -13,7 +13,7 @@ Payload para la consola PS4 que permite instalar juegos y aplicaciones (archivos
 ---
 
 ## 🚀 Instalación y Uso
-1. Descarga el archivo `rpi_payload.bin` desde la pestaña de **[Releases](https://github.com/CesarFerGuz/PS4-plugin-remote-compiler/releases)**.
+1. Descarga el archivo `rpi_payload.bin` desde la pestaña de **[Releases](https://github.com/cfgcodelab/PS4-plugin-remote-compiler/releases)**.
 2. Asegúrate de tener tu PS4 con Jailbreak (ej. GoldHEN) y el **BinLoader** activado (puerto `9090`).
 3. Inyecta el payload `rpi_payload.bin` a tu consola usando tu método favorito (Inyector Web, Netcat, o tu propio ESP32).
 4. ¡Listo! El payload quedará ejecutándose silenciosamente en segundo plano en el puerto `12800` a la espera de instrucciones.
