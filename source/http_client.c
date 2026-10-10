@@ -85,10 +85,11 @@ int http_download_range(const char* url, unsigned long offset, unsigned long siz
 
     char request[512];
     snprintf(request, sizeof(request), 
-             "GET %s?chunk=%lu,%lu HTTP/1.1\r\n"
+             "GET %s HTTP/1.1\r\n"
              "Host: %s\r\n"
+             "Range: bytes=%lu-%lu\r\n"
              "Connection: close\r\n\r\n", 
-             path, offset, size, ip);
+             path, ip, offset, offset + size - 1);
 
     sceNetSend(sock, request, strlen(request), 0);
 
@@ -154,10 +155,11 @@ int http_download_range_to_file(const char* url, unsigned long offset, unsigned 
 
     char request[512];
     snprintf(request, sizeof(request), 
-             "GET %s?chunk=%lu,%lu HTTP/1.1\r\n"
+             "GET %s HTTP/1.1\r\n"
              "Host: %s\r\n"
+             "Range: bytes=%lu-%lu\r\n"
              "Connection: close\r\n\r\n", 
-             path, offset, size, ip);
+             path, ip, offset, offset + size - 1);
 
     sceNetSend(sock, request, strlen(request), 0);
 
