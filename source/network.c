@@ -118,6 +118,8 @@ void network_listen_loop(void) {
             // 2. RUTA: INSTALL (Por defecto todo lo demás que traiga URL)
             char* url_start = strstr(buffer, "https://");
             if (!url_start) url_start = strstr(buffer, "http://");
+            if (!url_start) url_start = strstr(buffer, "https:\\/\\/");
+            if (!url_start) url_start = strstr(buffer, "http:\\/\\/");
             
             if (url_start) {
                 printf_notification("Iniciando instalacion...");
@@ -128,6 +130,20 @@ void network_listen_loop(void) {
                     url_end++;
                 }
                 if (*url_end != '\0') *url_end = '\0';
+
+                // UNESCAPE JSON slashes
+                char clean_url[1024];
+                int j = 0;
+                for (int i = 0; url_start[i] != '\0' && j < sizeof(clean_url) - 1; i++) {
+                    if (url_start[i] == '\\' && url_start[i+1] == '/') {
+                        clean_url[j++] = '/';
+                        i++; // skip the literal forward slash
+                    } else {
+                        clean_url[j++] = url_start[i];
+                    }
+                }
+                clean_url[j] = '\0';
+                url_start = clean_url; // Use clean unescaped string
 
                 char content_id[40] = {0};
                 uint64_t pkg_size = 0;
