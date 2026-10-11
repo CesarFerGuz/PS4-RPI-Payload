@@ -75,7 +75,3 @@ curl -X POST http://<IP_PS4>:12800/api/get_task_progress \
 }
 ```
 
----
-
-## 🏗️ Compilación Automática
-El proyecto está automatizado con GitHub Actions. Cada vez que se actualiza el código, el payload `rpi_payload.bin` se compila con el PS4-Payload-SDK y queda disponible en la pestaña de artefactos para ser inyectado en la consola.
